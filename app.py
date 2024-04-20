@@ -69,7 +69,7 @@ medicine_name = st.text_input("Enter the active substance or brand name:", "", k
 
 if st.button("Search"):
     # API endpoint for FDA's drug database
-    url = f"https://api.fda.gov/drug/label.json?search={medicine_name}"
+    url = f"https://api.fda.gov/drug/label.json?search=openfda.brand_name:{medicine_name}+openfda.generic_name:{medicine_name}&limit=1"
     
     # Make API request
     response = requests.get(url)
