@@ -68,35 +68,39 @@ st.markdown("<div class='title'>Medicine Information</div>", unsafe_allow_html=T
 medicine_name = st.text_input("Enter the active substance or brand name:", "", key="medicine_input")
 
 if st.button("Search"):
-    # API endpoint for FDA's drug database
-    url = f"https://api.fda.gov/drug/label.json?search=term:{medicine_name}&limit=1"
-   
-    # Make API request
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
+    try:
+        # API endpoint for FDA's drug database
+        url = f"https://api.fda.gov/drug/label.json?search=term:{medicine_name}&limit=1"
         
-        if data["results"]:
-            # Extract relevant information
-            medicine_info = data["results"][0]
-            brand_name = medicine_info.get("openfda", {}).get("brand_name", ["N/A"])[0]
-            generic_name = medicine_info.get("openfda", {}).get("generic_name", ["N/A"])[0]
-            indications = medicine_info.get("indications_and_usage", ["N/A"])[0]
-            dosage = medicine_info.get("dosage_and_administration", ["N/A"])[0]
-            warnings = medicine_info.get("warnings", ["N/A"])[0]
-            adverse_reactions = medicine_info.get("adverse_reactions", ["N/A"])[0]
+        # Make API request
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            data = response.json()
             
-            # Display medicine information
-            st.markdown("<div class='info'>", unsafe_allow_html=True)
-            st.markdown(f"<h2>{brand_name}</h2>", unsafe_allow_html=True)
-            st.markdown(f"<p><strong>Generic Name:</strong> {generic_name}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p><strong>Indications and Usage:</strong> {indications}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p><strong>Dosage and Administration:</strong> {dosage}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p><strong>Warnings:</strong> {warnings}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p><strong>Adverse Reactions:</strong> {adverse_reactions}</p>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            if data["results"]:
+                # Extract relevant information
+                medicine_info = data["results"][0]
+                brand_name = medicine_info.get("openfda", {}).get("brand_name", ["N/A"])[0]
+                generic_name = medicine_info.get("openfda", {}).get("generic_name", ["N/A"])[0]
+                indications = medicine_info.get("indications_and_usage", ["N/A"])[0]
+                dosage = medicine_info.get("dosage_and_administration", ["N/A"])[0]
+                warnings = medicine_info.get("warnings", ["N/A"])[0]
+                adverse_reactions = medicine_info.get("adverse_reactions", ["N/A"])[0]
+                
+                # Display medicine information
+                st.markdown("<div class='info'>", unsafe_allow_html=True)
+                st.markdown(f"<h2>{brand_name}</h2>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>Generic Name:</strong> {generic_name}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>Indications and Usage:</strong> {indications}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>Dosage and Administration:</strong> {dosage}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>Warnings:</strong> {warnings}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>Adverse Reactions:</strong> {adverse_reactions}</p>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.warning("No information found for the specified medicine.")
         else:
-            st.warning("No information found for the specified medicine.")
-    else:
-        st.error("Failed to retrieve data from the FDA's database.")
+            st.error(f"Failed to retrieve data from the FDA's database. Status code: {response.status_code}")
+            st.error(f"Response content: {response.text}")
+    except requests.exceptions.RequestException as e:
+        st.error(f"An error occurred while making the API request: {str(e)}")
